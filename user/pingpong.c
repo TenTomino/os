@@ -4,20 +4,26 @@
 
 int main(int argc, char *argv[]) {
 
-  int p[2];
-  char buf[100];
-  pipe(p);
+  int to_parent[2];
+  int to_child[2];
+  pipe(to_parent);
+  pipe(to_child);
+
   int pid=fork();
   
-  if(pid==0){
-    write(p[1], "pong", 4);
+  if(pid==0){ //child
+    char received;
+    read(to_child[0], &received, 1);
     printf("%d: received ping\n", getpid());
-    }
+    write(to_parent[1], "x", 1);
+   }
 
-  else {
-    wait(0);
-    read(p[0], buf, 100);
-    printf("%d: received pong\n", getpid());
+  else { //parent
+      write(to_child[1], "b", 1);
+      char received;
+
+      read(to_parent[0], &received, 1);
+      printf("%d: received pong\n", getpid());
       
   }
   
